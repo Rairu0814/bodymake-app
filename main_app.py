@@ -10,9 +10,9 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.title("ログイン")
-    username = st.text_input("ユーザー名（任意）")
-    password = st.text_input("パスワード", type="password")
+    st.markdown("#### ログイン")
+    username = st.text_input("ユーザー名（任意）", label_visibility="visible")
+    password = st.text_input("パスワード", type="password", label_visibility="visible")
     if st.button("ログイン"):
         if password == "bodymake2025":  # 任意のパスワードに変更可
             st.session_state.logged_in = True
@@ -25,6 +25,9 @@ if not st.session_state.logged_in:
 # ===== ユーザー識別 =====
 username = st.session_state.username
 DATA_FILE = f"daily_nutrition_{username}.csv"
+
+# ===== タイトル表示 =====
+st.markdown(f"## {username}さんのボディメイク記録")
 
 # ===== データ読み込み =====
 try:
@@ -39,33 +42,31 @@ if "selected_date" not in st.session_state:
     st.session_state.selected_date = date.today()
 
 # ===== 目標値設定 =====
-st.sidebar.header("目標値設定")
+st.markdown("### 🎯 目標値設定")
 targets = {
-    "カロリー": st.sidebar.number_input("目標カロリー (kcal)", min_value=0, value=2000),
-    "タンパク質": st.sidebar.number_input("目標タンパク質 (g)", min_value=0, value=100),
-    "脂質": st.sidebar.number_input("目標脂質 (g)", min_value=0, value=60),
-    "炭水化物": st.sidebar.number_input("目標炭水化物 (g)", min_value=0, value=250)
+    "カロリー": st.number_input("目標カロリー (kcal)", min_value=0, value=2000),
+    "タンパク質": st.number_input("目標タンパク質 (g)", min_value=0, value=100),
+    "脂質": st.number_input("目標脂質 (g)", min_value=0, value=60),
+    "炭水化物": st.number_input("目標炭水化物 (g)", min_value=0, value=250)
 }
 
-st.title(f"{username}さんのボディメイク記録アプリ(ver.01)")
-
 # ===== 日付選択 =====
-st.subheader("表示・入力する日付を選択")
+st.markdown("#### 表示・入力する日付を選択")
 selected_date = st.date_input("日付選択", value=st.session_state.selected_date, min_value=date(2020, 1, 1))
 st.session_state.selected_date = selected_date
 input_date = selected_date
 
 # ===== 入力フォーム =====
-st.subheader("新しい記録を入力")
+st.markdown("#### 新しい記録を入力")
 with st.form("input_form", clear_on_submit=True):
-    st.markdown("### カロリー・PFC")
+    st.markdown("##### カロリー・PFC")
     inputs = {
         "カロリー": st.number_input("摂取カロリー (kcal)", min_value=0, value=None, placeholder=""),
         "タンパク質": st.number_input("摂取タンパク質 (g)", min_value=0, value=None, placeholder=""),
         "脂質": st.number_input("摂取脂質 (g)", min_value=0, value=None, placeholder=""),
         "炭水化物": st.number_input("摂取炭水化物 (g)", min_value=0, value=None, placeholder="")
     }
-    st.markdown("### 体重")
+    st.markdown("##### 体重")
     weight = st.number_input("体重 (kg)", min_value=0.0, format="%.1f", value=None, placeholder="")
 
     submitted = st.form_submit_button("保存")
