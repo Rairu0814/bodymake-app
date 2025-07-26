@@ -4,32 +4,25 @@ import plotly.express as px
 from datetime import date, timedelta
 from streamlit_echarts import st_echarts
 import os
-import time
 
-# ===== ログイン処理（トップページ） =====
-LOGIN_DURATION = 7 * 24 * 60 * 60  # 1週間（秒）
-PASSWORD = "makebody2025"  # 固定パスワード
+# ===== ログイン処理 =====
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-if "login_time" not in st.session_state or time.time() - st.session_state.get("login_time", 0) > LOGIN_DURATION:
-    st.session_state.clear()
-
-if "username" not in st.session_state:
-    st.title("ログインページ")
-    with st.form("login_form"):
-        username = st.text_input("ユーザー名（任意）")
-        password = st.text_input("パスワード", type="password")
-        submitted = st.form_submit_button("ログイン")
-
-        if submitted:
-            if password == PASSWORD:
-                st.session_state.username = username.strip()
-                st.session_state.login_time = time.time()
-                st.success("ログインに成功しました！")
-                st.experimental_rerun()
-            else:
-                st.error("パスワードが間違っています。")
+if not st.session_state.logged_in:
+    st.title("ログイン")
+    username = st.text_input("ユーザー名（任意）")
+    password = st.text_input("パスワード", type="password")
+    if st.button("ログイン"):
+        if password == "bodymake2025":  # 任意のパスワードに変更可
+            st.session_state.logged_in = True
+            st.session_state.username = username.strip()
+            st.rerun()
+        else:
+            st.error("パスワードが間違っています。")
     st.stop()
 
+# ===== ユーザー識別 =====
 username = st.session_state.username
 DATA_FILE = f"daily_nutrition_{username}.csv"
 
@@ -54,7 +47,7 @@ targets = {
     "炭水化物": st.sidebar.number_input("目標炭水化物 (g)", min_value=0, value=250)
 }
 
-st.title(f"{username}さんのボディメイク記録アプリ")
+st.title(f"{username}さんのボディメイク記録アプリ(ver.01)")
 
 # ===== 日付選択 =====
 st.subheader("表示・入力する日付を選択")
