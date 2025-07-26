@@ -4,6 +4,7 @@ import plotly.express as px
 from datetime import date, timedelta
 from streamlit_echarts import st_echarts
 import os
+import math
 
 # ===== ログイン処理 =====
 if "logged_in" not in st.session_state:
@@ -14,7 +15,7 @@ if not st.session_state.logged_in:
     username = st.text_input("ユーザー名（任意）", label_visibility="visible")
     password = st.text_input("パスワード", type="password", label_visibility="visible")
     if st.button("ログイン"):
-        if password == "bodymake2025":  # 任意のパスワードに変更可
+        if password == "bodymake2025":
             st.session_state.logged_in = True
             st.session_state.username = username.strip()
             st.rerun()
@@ -41,13 +42,41 @@ except FileNotFoundError:
 if "selected_date" not in st.session_state:
     st.session_state.selected_date = date.today()
 
+# ===== 新機能：目標設定による自動計算 =====
+st.markdown("### 🧮 自動目標設定")
+mode = st.radio("目標タイプを選択", ["減量", "増量"])
+gender = st.selectbox("性別を選択", ["男性", "女性"])
+days = st.number_input("あと何日で？", min_value=1, value=30)
+weight_change = st.number_input("何kg{}したい？".format("減量" if mode=="減量" else "増量"), min_value=0.1, format="%.1f")
+
+if gender == "男性":
+    base_cal = 2000
+else:
+    base_cal = 1800
+
+if days and weight_change:
+    daily_diff = (weight_change * 7000) / days
+    if mode == "減量":
+        intake_cal = max(0, base_cal - daily_diff)
+        p_ratio, f_ratio, c_ratio = 0.25, 0.20, 0.55
+    else:
+        intake_cal = base_cal + daily_diff
+        p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
+
+    p = math.ceil((intake_cal * p_ratio) / 4)
+    f = math.ceil((intake_cal * f_ratio) / 9)
+    c = math.ceil((intake_cal * c_ratio) / 4)
+
+    st.success(f"1日あたりの目標摂取カロリー: {int(intake_cal)} kcal")
+    st.info(f"P: {p} g, F: {f} g, C: {c} g")
+
 # ===== 目標値設定 =====
-st.markdown("### 🎯 目標値設定")
+st.markdown("### 🎯 手動目標値設定（上書き可）")
 targets = {
-    "カロリー": st.number_input("目標カロリー (kcal)", min_value=0, value=2000),
-    "タンパク質": st.number_input("目標タンパク質 (g)", min_value=0, value=100),
-    "脂質": st.number_input("目標脂質 (g)", min_value=0, value=60),
-    "炭水化物": st.number_input("目標炭水化物 (g)", min_value=0, value=250)
+    "カロリー": st.number_input("目標カロリー (kcal)", min_value=0, value=int(intake_cal) if 'intake_cal' in locals() else 2000),
+    "タンパク質": st.number_input("目標タンパク質 (g)", min_value=0, value=p if 'p' in locals() else 100),
+    "脂質": st.number_input("目標脂質 (g)", min_value=0, value=f if 'f' in locals() else 60),
+    "炭水化物": st.number_input("目標炭水化物 (g)", min_value=0, value=c if 'c' in locals() else 250)
 }
 
 # ===== 日付選択 =====
