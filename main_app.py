@@ -27,7 +27,7 @@ username = st.session_state.username
 DATA_FILE = f"daily_nutrition_{username}.csv"
 
 # ===== タイトル表示 =====
-st.markdown(f"## {username}さんの \n ボディメイク記録")
+st.markdown(f"## {username}さん \n ボディメイク記録")
 
 # ===== データ読み込み =====
 try:
