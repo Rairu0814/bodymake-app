@@ -9,7 +9,7 @@ DATA_FILE = "daily_nutrition_data.csv"
 
 # データ読み込み
 try:
-    df = pd.read_csv(DATA_FILE)
+    df = pd.read_csv(DATA_FILE).fillna(0)
     df["日付"] = pd.to_datetime(df["日付"]).dt.date
 except FileNotFoundError:
     df = pd.DataFrame(columns=["日付", "カロリー", "タンパク質", "脂質", "炭水化物", "体重"])
@@ -75,6 +75,7 @@ with st.form("input_form", clear_on_submit=True):
 
         df.drop_duplicates(subset="日付", keep="last", inplace=True)
         df.sort_values("日付", inplace=True)
+        df.fillna(0, inplace=True)
         df.to_csv(DATA_FILE, index=False, encoding='utf-8-sig')
         st.success("データを保存しました！")
 
@@ -83,7 +84,7 @@ def circular_gauge(label, value, target, color, value_color):
     percent = 100 if value > target else (value / target * 100 if target > 0 else 0)
     over_amount = value - target
     if over_amount > 0:
-        detail_text = f"{value:.0f}/{target}\n{over_amount:.0f}over"  # ← 修正箇所
+        detail_text = f"{value:.0f}/{target}\n{over_amount:.0f} over"
     else:
         detail_text = f"{value:.0f}/{target}\nあと{abs(over_amount):.0f}"
 
@@ -113,7 +114,6 @@ def circular_gauge(label, value, target, color, value_color):
         ]
     }
     st_echarts(option, height="200px")
-
 
 st.subheader(f"{selected_date.strftime('%Y/%m/%d')} の摂取状況")
 selected_row = df[df["日付"] == selected_date]
