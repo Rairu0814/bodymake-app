@@ -4,10 +4,30 @@ import plotly.express as px
 from datetime import date, timedelta
 from streamlit_echarts import st_echarts
 import os
+import time
 
-# ===== ユーザー識別 =====
+# ===== ログイン処理（トップページ） =====
+LOGIN_DURATION = 7 * 24 * 60 * 60  # 1週間（秒）
+PASSWORD = "makebody2025"  # 固定パスワード
+
+if "login_time" not in st.session_state or time.time() - st.session_state.get("login_time", 0) > LOGIN_DURATION:
+    st.session_state.clear()
+
 if "username" not in st.session_state:
-    st.error("ログインしていません。login_app.py からログインしてください。")
+    st.title("ログインページ")
+    with st.form("login_form"):
+        username = st.text_input("ユーザー名（任意）")
+        password = st.text_input("パスワード", type="password")
+        submitted = st.form_submit_button("ログイン")
+
+        if submitted:
+            if password == PASSWORD:
+                st.session_state.username = username.strip()
+                st.session_state.login_time = time.time()
+                st.success("ログインに成功しました！")
+                st.experimental_rerun()
+            else:
+                st.error("パスワードが間違っています。")
     st.stop()
 
 username = st.session_state.username
