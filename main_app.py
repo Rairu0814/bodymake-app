@@ -3,23 +3,29 @@ import pandas as pd
 import plotly.express as px
 from datetime import date, timedelta
 from streamlit_echarts import st_echarts
+import os
 
-# ファイル設定
-DATA_FILE = "daily_nutrition_data.csv"
+# ===== ユーザー識別 =====
+if "username" not in st.session_state:
+    st.error("ログインしていません。login_app.py からログインしてください。")
+    st.stop()
 
-# データ読み込み
+username = st.session_state.username
+DATA_FILE = f"daily_nutrition_{username}.csv"
+
+# ===== データ読み込み =====
 try:
-    df = pd.read_csv(DATA_FILE).fillna(0)
+    df = pd.read_csv(DATA_FILE)
     df["日付"] = pd.to_datetime(df["日付"]).dt.date
 except FileNotFoundError:
     df = pd.DataFrame(columns=["日付", "カロリー", "タンパク質", "脂質", "炭水化物", "体重"])
     df.to_csv(DATA_FILE, index=False)
 
-# 初期化
+# ===== 初期化 =====
 if "selected_date" not in st.session_state:
     st.session_state.selected_date = date.today()
 
-# 目標値設定
+# ===== 目標値設定 =====
 st.sidebar.header("目標値設定")
 targets = {
     "カロリー": st.sidebar.number_input("目標カロリー (kcal)", min_value=0, value=2000),
@@ -28,7 +34,7 @@ targets = {
     "炭水化物": st.sidebar.number_input("目標炭水化物 (g)", min_value=0, value=250)
 }
 
-st.title("ボディメイク記録アプリ")
+st.title(f"{username}さんのボディメイク記録アプリ")
 
 # ===== 日付選択 =====
 st.subheader("表示・入力する日付を選択")
@@ -75,7 +81,6 @@ with st.form("input_form", clear_on_submit=True):
 
         df.drop_duplicates(subset="日付", keep="last", inplace=True)
         df.sort_values("日付", inplace=True)
-        df.fillna(0, inplace=True)
         df.to_csv(DATA_FILE, index=False, encoding='utf-8-sig')
         st.success("データを保存しました！")
 
