@@ -43,7 +43,7 @@ if "selected_date" not in st.session_state:
     st.session_state.selected_date = date.today()
 
 # ===== 目標設定による自動計算 =====
-st.markdown("### 🧮 目標自動計算 \n あくまでも運動をしていない場合の目安です．")
+st.markdown("### 目標自動計算 \n あくまでも運動をしていない場合の目安です．")
 mode = st.radio("目標タイプを選択", ["減量", "増量"])
 gender = st.selectbox("性別を選択", ["男性", "女性"])
 days = st.number_input("あと何日で？", min_value=1, value=30)
@@ -72,7 +72,7 @@ if days and weight_change:
 
 # ===== 目標値設定 =====
 with st.container():
-    st.markdown("### 🎯 目標値設定")
+    st.markdown("### 目標値設定 \n これらの数値をもとに1日の摂取量を計算します")
     targets = {
         "カロリー": st.number_input("目標カロリー (kcal)", min_value=0, value=2000),
         "タンパク質": st.number_input("目標タンパク質 (g)", min_value=0, value=100),
@@ -82,14 +82,14 @@ with st.container():
 
 # ===== 日付選択 =====
 with st.container():
-    st.markdown("### 📅 表示・入力する日付を選択")
+    st.markdown("### 表示・入力する日付を選択")
     selected_date = st.date_input("日付選択", value=st.session_state.selected_date, min_value=date(2020, 1, 1))
     st.session_state.selected_date = selected_date
     input_date = selected_date
 
 # ===== 入力フォーム =====
 with st.container():
-    st.markdown("### 📝 新しい記録を入力")
+    st.markdown("### 新しい記録を入力")
     with st.form("input_form", clear_on_submit=True):
         st.markdown("#### カロリー・PFC")
         inputs = {
@@ -185,7 +185,7 @@ with st.container():
 
 # ===== 体重グラフ =====
 with st.container():
-    st.subheader("📈 体重推移")
+    st.subheader("体重推移")
     weight_data = df.dropna(subset=["体重"])
     if not weight_data.empty:
         fig = px.line(weight_data, x="日付", y="体重", markers=True)
@@ -197,7 +197,7 @@ with st.container():
 
 # ===== 平均表示 =====
 with st.container():
-    st.subheader("📊 摂取量の週間・月間平均")
+    st.subheader("摂取量の週間・月間平均")
 
     df_weekly = df.copy()
     df_weekly["週"] = pd.to_datetime(df_weekly["日付"]).apply(lambda d: (d - timedelta(days=d.weekday())).strftime("%Y-%m-%d"))
